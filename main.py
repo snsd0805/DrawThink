@@ -27,6 +27,7 @@ class Server:
             self.main(sock)
         elif data == "CLIENT":
             sock.send("OK.CLIENT".encode('utf-8'))
+            self.client(sock)
         else:
             sock.send("FAIL".encode('utf-8'))
         
@@ -55,6 +56,16 @@ class Server:
         sock.send("{} {}".format(roomNum,portNum).encode('utf-8'))
     # def getPort(self):
     #     sock
+    def client(self,sock):
+        receiveMsg = sock.recv(MAX).decode('utf-8')
+        flag = False
+        for i in self.roomList:
+            if i['roomNum'] == receiveMsg:
+                sock.send(str(i['portNum']).encode('utf-8'))
+                flag = True
+        if not flag:
+            sock.send("FAIL".encode('utf-8'))
+        
 class Room:
     startFlag = False
     def __init__(self,ip,portNum):
@@ -97,7 +108,13 @@ class Client:
             room = Room(self.ip,int(connectData[1]))
             room.connect()
         elif receiveMsg=="OK.CLIENT":
-            print("CLIENT")
+            roomNum = input("Room Number> ")
+            sock.send(roomNum.encode('utf-8'))
+            receiveMsg = sock.recv(MAX).decode('utf-8')
+
+            sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            sock.connect((self.ip,int(receiveMsg)))
+            print(sock.recv(MAX).decode('utf-8'))
         else:
             print("ERROR TYPE")
 
