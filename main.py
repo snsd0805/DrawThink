@@ -68,6 +68,7 @@ class Server:
         
 class Room:
     startFlag = False
+    sockList = []
     def __init__(self,ip,portNum):
         self.ip = ip
         self.portNum = portNum
@@ -80,11 +81,25 @@ class Room:
             sock,sockname = listensock.accept()
             print("[ {} ]{} has connected.".format(self.portNum,sockname))
             sock.send('WELCOME'.encode('utf-8'))
+
+            self.sockList.append(sock)      # 把sock放入list
+
+            receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
+            receiveDataThread.start()
+
     def connect(self):
         time.sleep(0.5)
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         sock.connect((self.ip,self.portNum))
-        print(sock.recv(MAX).decode('utf-8'))
+        return sock
+    def receiveData(self,sock):
+        while True:
+            data = sock.recv(MAX).decode('utf-8')
+            if data:
+                print(data)
+                for clientSock in self.sockList:    # 遍歷socket list
+                    if clientSock != sock:          # 不是自己的才傳送資料
+                        clientSock.send("[{}]:{}".format(sock.getpeername(),data).encode('utf-8')) 
 
 class Client:
     def __init__(self,ip,port):
@@ -106,18 +121,36 @@ class Client:
             print(receiveMsg)
             connectData = receiveMsg.split(' ')
             room = Room(self.ip,int(connectData[1]))
-            room.connect()
+            sock = room.connect()       # sock可覆蓋了
+
+            receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
+            receiveDataThread.start()
+            sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
+            sendDataThread.start()
+
         elif receiveMsg=="OK.CLIENT":
             roomNum = input("Room Number> ")
             sock.send(roomNum.encode('utf-8'))
             receiveMsg = sock.recv(MAX).decode('utf-8')
+            room = Room(self.ip,int(receiveMsg))
+            sock = room.connect()       # sock可覆蓋了
+            
+            receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
+            receiveDataThread.start()
+            sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
+            sendDataThread.start()
 
-            sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-            sock.connect((self.ip,int(receiveMsg)))
-            print(sock.recv(MAX).decode('utf-8'))
         else:
             print("ERROR TYPE")
-
+    def receiveData(self,sock):
+        while True:
+            data = sock.recv(MAX).decode('utf-8')
+            if data:
+                print(data)
+    def sendData(self,sock):
+        while True:
+            data = input("> ")
+            sock.send(data.encode('utf-8'))
 def main():
     ip = sys.argv[2]
     port = sys.argv[3]
