@@ -1,5 +1,5 @@
 import socket,threading,sys,random,multiprocessing,time
-
+import draw
 MAX = 1024
 
 class Server:
@@ -80,10 +80,9 @@ class Room:
         while True:
             sock,sockname = listensock.accept()
             print("[ {} ]{} has connected.".format(self.portNum,sockname))
-            sock.send('WELCOME'.encode('utf-8'))
 
             self.sockList.append(sock)      # 把sock放入list
-
+            
             receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
             receiveDataThread.start()
 
@@ -94,12 +93,13 @@ class Room:
         return sock
     def receiveData(self,sock):
         while True:
-            data = sock.recv(MAX).decode('utf-8')
+            origin = sock.recv(MAX)
+            data = origin.decode('utf-8')
             if data:
                 print(data)
                 for clientSock in self.sockList:    # 遍歷socket list
                     if clientSock != sock:          # 不是自己的才傳送資料
-                        clientSock.send("[{}]:{}".format(sock.getpeername(),data).encode('utf-8')) 
+                        clientSock.send(origin) 
 
 class Client:
     def __init__(self,ip,port):
@@ -123,10 +123,13 @@ class Client:
             room = Room(self.ip,int(connectData[1]))
             sock = room.connect()       # sock可覆蓋了
 
-            receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
-            receiveDataThread.start()
-            sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
-            sendDataThread.start()
+            # receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
+            # receiveDataThread.start()
+            # sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
+            # sendDataThread.start()
+
+            a = threading.Thread(target=draw.sendDraw,args=(sock,))
+            a.start()
 
         elif receiveMsg=="OK.CLIENT":
             roomNum = input("Room Number> ")
@@ -135,10 +138,12 @@ class Client:
             room = Room(self.ip,int(receiveMsg))
             sock = room.connect()       # sock可覆蓋了
             
-            receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
-            receiveDataThread.start()
-            sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
-            sendDataThread.start()
+            # receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
+            # receiveDataThread.start()
+            # sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
+            # sendDataThread.start()
+            a = threading.Thread(target=draw.receiveDraw,args=(sock,))
+            a.start()
 
         else:
             print("ERROR TYPE")
