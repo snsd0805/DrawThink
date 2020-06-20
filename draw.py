@@ -12,9 +12,13 @@ def sendDraw(sock):
     clock= pygame.time.Clock()
 
     # 使系統鼠標圖標不可見
-    pygame.mouse.set_visible(False)
+    #pygame.mouse.set_visible(False)
+    
+    dotPos = []
 
     mouseFlag = False
+    screen.fill((255, 255, 255))
+    pygame.display.update()
     while True:
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
@@ -37,14 +41,18 @@ def sendDraw(sock):
             if event.type == pygame.MOUSEMOTION:
                 print ('mouse is moving', pygame.mouse.get_pos())
                 if mouseFlag:
+                    dotPos.append(pygame.mouse.get_pos())
                     sock.send("{}+".format(pygame.mouse.get_pos()).encode('utf-8'))
+                    pygame.draw.circle(screen,black,pygame.mouse.get_pos(),5,0)
             
-        screen.fill((255, 255, 255))
+        
 
         # 在鼠標周圍畫一個圓
-        pos= (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-        pygame.draw.circle(screen, black, pos, 10, 0)
-
+        #for i in range(len(dotPos)-1):
+        #    pygame.draw.line(screen,black,dotPos[i],dotPos[i+1],5)
+        #pos= (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+        #pygame.draw.circle(screen, black, pos, 5, 0)
+        
         pygame.display.update()
 
         clock.tick(30)
@@ -60,6 +68,8 @@ def receiveDraw(sock):
     screen= pygame.display.set_mode(size)
 
     clock= pygame.time.Clock()
+    screen.fill((255, 255, 255))
+    pygame.display.update()
     print("draw start")
     while True:
         for event in pygame.event.get():
@@ -71,7 +81,7 @@ def receiveDraw(sock):
         #print((li))
         for i in li:
             if i!="":
-                screen.fill((255, 255, 255))
+                #screen.fill((255, 255, 255))
 
                 i = i.lstrip('(')
                 i = i.rstrip(')')
@@ -80,7 +90,7 @@ def receiveDraw(sock):
                 # 在鼠標周圍畫一個圓
                 pos = (int(i[0]),int(i[1]))
                 print(pos)
-                pygame.draw.circle(screen, black, pos, 10, 0)
-                
+                # pygame.draw.circle(screen, black, pos, 5, 0)
+                pygame.draw.circle(screen,black,pos,5,0)
                 pygame.display.update()
 
