@@ -15,8 +15,8 @@ class Server:
         while True:
             sock,sockname = listensock.accept()
             print("{} has connected.".format(sockname))
-            setTypeThread = threading.Thread(target = self.selectType,args=(sock,))
-            setTypeThread.start()            
+            setTypeThread = threading.Thread(target = self.selectType,args=(sock,)) # Create a thread for communicating with client.
+            setTypeThread.start()
 
     def selectType(self,sock):
         data = sock.recv(MAX).decode('utf-8')
@@ -127,9 +127,7 @@ class Client:
             # receiveDataThread.start()
             # sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
             # sendDataThread.start()
-
-            a = threading.Thread(target=draw.sendDraw,args=(sock,))
-            a.start()
+            draw.sendDraw(sock,)
 
         elif receiveMsg=="OK.CLIENT":
             roomNum = input("Room Number> ")
@@ -142,11 +140,10 @@ class Client:
             # receiveDataThread.start()
             # sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
             # sendDataThread.start()
-            a = threading.Thread(target=draw.receiveDraw,args=(sock,))
-            a.start()
-
+            draw.receiveDraw(sock)
         else:
             print("ERROR TYPE")
+
     def receiveData(self,sock):
         while True:
             data = sock.recv(MAX).decode('utf-8')
