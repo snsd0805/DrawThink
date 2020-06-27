@@ -11,7 +11,7 @@ def sendDraw(sock):
     screen= pygame.display.set_mode(size)
     clock= pygame.time.Clock()
 
-    # 使系統鼠標圖標不可見
+    # 使系統滑鼠圖標不可見
     #pygame.mouse.set_visible(False)
     
     dotPos = []
@@ -25,19 +25,18 @@ def sendDraw(sock):
                 pygame.quit()
                 sys.exit()
         
-        # 如果按下鼠標
-        # get_pressed() 告訴您按下哪個鼠標按鈕
+        # 如果按下滑鼠
+        # get_pressed() 告訴您按下哪個滑鼠按鈕
             if event.type == pygame.MOUSEBUTTONDOWN:
                 print ('mouse pressed',pygame.mouse.get_pressed())
                 if pygame.mouse.get_pressed()[0]:
                     mouseFlag = True
-        # 如果釋放鼠標
+        # 如果釋放滑鼠
             elif event.type == pygame.MOUSEBUTTONUP:
                 print ('mouse released', pygame.mouse.get_pressed())
                 if pygame.mouse.get_pressed()[0] == 0:
                     mouseFlag = False
-        # 如果鼠標在運動中
-        # get_rel() - 返回自上次調用此函數以來X和Y的移動量
+        # 如果滑鼠在運動中
             if event.type == pygame.MOUSEMOTION:
                 print ('mouse is moving', pygame.mouse.get_pos())
                 if mouseFlag:
@@ -48,7 +47,7 @@ def sendDraw(sock):
             
         
         # feature
-        # 在鼠標周圍畫一個圓
+        # 在滑鼠周圍畫一個圓
         #for i in range(len(dotPos)-1):
         #    pygame.draw.line(screen,black,dotPos[i],dotPos[i+1],5)
         #pos= (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
