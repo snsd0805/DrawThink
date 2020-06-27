@@ -57,9 +57,12 @@ def sendDraw(sock):
 
         clock.tick(30)
 
+startFlag = True
+
 def guessInput(screen,sock):
+    global startFlag
     guessStr = ""
-    while True:
+    while startFlag:
         for event in pygame.event.get() :
             if event.type== pygame.QUIT:    # close GUI
                 pygame.quit()
@@ -69,8 +72,6 @@ def guessInput(screen,sock):
                     guessStr = guessStr + chr(event.key)   
                 elif event.key == 13:       #enter,send to server,clean
                     sock.send(guessStr.encode('utf-8'))
-                    ans = sock.recv(1024).decode('utf-8')
-                    print(ans)
                     guessStr = ""
                 elif event.key == 8 :       #backspace
                     guessStr = guessStr[0:-1]
@@ -82,6 +83,7 @@ def guessInput(screen,sock):
                 pygame.display.update()
 
 def receiveDraw(sock):
+    global startFlag
     white= (255, 255, 255)
     black= (0, 0, 0)
 
@@ -101,8 +103,13 @@ def receiveDraw(sock):
     guessThreading.setDaemon(False)
     guessThreading.start()
     
-    while True:
+    while startFlag:
         data = sock.recv(1024).decode('utf-8')
+        if data == 'exitok':
+            startFlag = False
+            pygame.quit()
+            sys.exit()
+        print(data)
         li = data.split('+')   # 送來的座標可能一次有多個，規範以+隔開
         for i in li:
             if i!="":
@@ -118,5 +125,5 @@ def receiveDraw(sock):
                         # pygame.draw.circle(screen, black, pos, 5, 0)
                         pygame.draw.circle(screen,black,pos,5,0)
                         pygame.display.update()
-
+    sock.close()
     

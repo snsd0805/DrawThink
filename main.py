@@ -130,6 +130,9 @@ class Room:
                 else:   # it is from other client. He/she want to send answer to check the answer
                     if data == self.problem:
                         sock.send('y'.encode('utf-8'))
+                    elif data == 'exit':
+                        sock.send('exitok'.encode('utf-8'))
+                        self.sockList.remove(sock)
                     else:
                         sock.send('n'.encode('utf-8'))
 
