@@ -1,5 +1,6 @@
 import socket,threading,sys,random,multiprocessing,time
 import draw
+import requests,json # Get problem
 MAX = 1024
 
 class Server:
@@ -87,11 +88,10 @@ class Room:
     startFlag = False
     sockList = [] # Client's sock list
 
-    problem = "apple"
-
     def __init__(self,ip,portNum):
         self.ip = ip
         self.portNum = portNum
+        self.problem = self.getProblem()
     def start(self):
         # Build a room's socket to start game
         listensock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -113,7 +113,10 @@ class Room:
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         sock.connect((self.ip,self.portNum))
         return sock
-
+    def getProblem(self):
+        jsonResponse = requests.get('https://ncnu-hungrycat.com/pyGartic.php')
+        jsonData = json.loads(jsonResponse.text)
+        return jsonData['problem']
     def receiveData(self,sock): 
         # room's socket receive MAINCLIENT'S mouse position.
         # And send this MOUSE position to other client.
