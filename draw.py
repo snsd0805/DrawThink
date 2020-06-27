@@ -62,7 +62,10 @@ def guessInput(screen):
     guessStr = ""
     while True:
         for event in pygame.event.get() :
-            if event.type == pygame.KEYDOWN:
+            if event.type== pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
                 if event.key>=97 and event.key<122:
                     guessStr = guessStr + chr(event.key)   
                 elif event.key == 13:       #enter
@@ -93,13 +96,10 @@ def receiveDraw(sock):
     print("draw start")
 
     guessThreading = threading.Thread(target=guessInput,args=(screen,))# guest input
+    guessThreading.setDaemon(False)
     guessThreading.start()
     
     while True:
-        for event in pygame.event.get():
-            if event.type== pygame.QUIT:
-                pygame.quit()
-                sys.exit()
         data = sock.recv(1024).decode('utf-8')
         li = data.split('+')
         #print((li))
