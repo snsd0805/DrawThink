@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys,threading
 
 
 def sendDraw(sock):
@@ -43,6 +43,7 @@ def sendDraw(sock):
                 if mouseFlag:
                     dotPos.append(pygame.mouse.get_pos())
                     sock.send("{}+".format(pygame.mouse.get_pos()).encode('utf-8'))
+
                     pygame.draw.circle(screen,black,pygame.mouse.get_pos(),5,0)
             
         
@@ -57,6 +58,24 @@ def sendDraw(sock):
 
         clock.tick(30)
 
+def guessInput(screen):
+    guessStr = ""
+    while True:
+        for event in pygame.event.get() :
+            if event.type == pygame.KEYDOWN:
+                if event.key>=97 and event.key<122:
+                    guessStr = guessStr + chr(event.key)   
+                elif event.key == 13:       #enter
+                    guessStr = ""
+                elif event.key == 8 :       #backspace
+                    guessStr = guessStr[0:-1]
+
+                pygame.draw.rect(screen,(171, 254, 250),[100,450,500,550],0)
+                pgStringVar = pygame.font.Font(None,30).render(guessStr,False,(0,0,0))
+                print(guessStr)
+                screen.blit(pgStringVar,(120,455))
+                pygame.display.update()
+
 def receiveDraw(sock):
     white= (255, 255, 255)
     black= (0, 0, 0)
@@ -69,8 +88,13 @@ def receiveDraw(sock):
 
     clock= pygame.time.Clock()
     screen.fill((255, 255, 255))
+    pygame.draw.rect(screen,(171, 254, 250),[100,450,500,550],0)
     pygame.display.update()
     print("draw start")
+
+    guessThreading = threading.Thread(target=guessInput,args=(screen,))# guest input
+    guessThreading.start()
+    
     while True:
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
@@ -88,9 +112,13 @@ def receiveDraw(sock):
                 i = i.replace(',','')
                 i = i.split(' ')
                 # 在鼠標周圍畫一個圓
-                pos = (int(i[0]),int(i[1]))
-                print(pos)
-                # pygame.draw.circle(screen, black, pos, 5, 0)
-                pygame.draw.circle(screen,black,pos,5,0)
-                pygame.display.update()
+                #print(int(i[0]),int(i[1]))
+                print(i)
+                if len(i)==2 :       # 防止傳送過程疏漏
+                    if i[0]!='' and i[1]!='':   # 防止傳送過程疏漏
+                        pos = (int(i[0]),int(i[1]))
+                        # pygame.draw.circle(screen, black, pos, 5, 0)
+                        pygame.draw.circle(screen,black,pos,5,0)
+                        pygame.display.update()
 
+    
