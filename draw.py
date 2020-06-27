@@ -58,7 +58,7 @@ def sendDraw(sock):
 
         clock.tick(30)
 
-def guessInput(screen):
+def guessInput(screen,sock):
     guessStr = ""
     while True:
         for event in pygame.event.get() :
@@ -69,6 +69,9 @@ def guessInput(screen):
                 if event.key>=97 and event.key<122: #a~z
                     guessStr = guessStr + chr(event.key)   
                 elif event.key == 13:       #enter,send to server,clean
+                    sock.send(guessStr.encode('utf-8'))
+                    ans = sock.recv(1024).decode('utf-8')
+                    print(ans)
                     guessStr = ""
                 elif event.key == 8 :       #backspace
                     guessStr = guessStr[0:-1]
@@ -95,7 +98,7 @@ def receiveDraw(sock):
     pygame.display.update()
     print("draw start")
 
-    guessThreading = threading.Thread(target=guessInput,args=(screen,)) # guest input
+    guessThreading = threading.Thread(target=guessInput,args=(screen,sock)) # guest input
     guessThreading.setDaemon(False)
     guessThreading.start()
     

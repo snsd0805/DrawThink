@@ -86,6 +86,9 @@ class Server:
 class Room:
     startFlag = False
     sockList = [] # Client's sock list
+
+    problem = "apple"
+
     def __init__(self,ip,portNum):
         self.ip = ip
         self.portNum = portNum
@@ -120,9 +123,15 @@ class Room:
             data = origin.decode('utf-8')
             if data:
                 print(data)
-                for clientSock in self.sockList:    # 遍歷socket list
-                    if clientSock != sock:          # 不是自己的才傳送資料.Needn't send position to MAIN
-                        clientSock.send(origin) 
+                if data[0]=='(': # Form MAIN CLIENT,it is position data
+                    for clientSock in self.sockList:    # 遍歷socket list
+                        if clientSock != sock:          # 不是自己的才傳送資料.Needn't send position to MAIN
+                            clientSock.send(origin) 
+                else:   # it is from other client. He/she want to send answer to check the answer
+                    if data == self.problem:
+                        sock.send('y'.encode('utf-8'))
+                    else:
+                        sock.send('n'.encode('utf-8'))
 
 class Client:
     def __init__(self,ip,port):
