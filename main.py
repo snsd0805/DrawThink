@@ -122,12 +122,13 @@ class Room:
 
     def game(self):
         mainSocket = random.choice(self.sockList)
+        time.sleep(4)
         print("GAME SEND PROBLEM")
-        for sock in self.sockList:
-            if sock == mainSocket:
-                sock.send('[prob] {}'.format(self.problem).encode('utf-8'))
+        for clientSock in self.sockList:
+            if clientSock == mainSocket:
+                clientSock.send('[prob] {}'.format(self.problem).encode('utf-8'))
             else:
-                sock.send('[gues]'.encode('utf-8'))
+                clientSock.send('[gues]'.encode('utf-8'))
     def connect(self):
         time.sleep(0.5)
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -152,7 +153,10 @@ class Room:
                             clientSock.send(origin) 
                 elif data=='[restart]':  # [restart]
                     print('game restart')
-                    time.sleep(4)
+                    time.sleep(1)
+                    for clientSock in self.sockList:
+                        clientSock.send('restart'.encode('utf-8'))
+                
                     self.game() #restart
 
                 else:   # it is from other client. He/she want to send answer to check the answer
@@ -230,29 +234,30 @@ class Client:
         screen= pygame.display.set_mode(size)
         
         
-        
         continueFlag = False
         while not continueFlag:
             screen.fill((255, 255, 255))
             pgStringVar = pygame.font.Font(None,25).render("Please wait...",False,(0,0,0))# 文字物件
             screen.blit(pgStringVar,(500,240))# draw font
             pygame.display.update()
-            time.sleep(1)
 
             print("START RECEIVE.")
             data = sock.recv(1024).decode('utf-8')
             role = data[1:5]
-            problem = data.split(' ')[1]
+           
             print("Role: ",role)
             if role == "prob":
+                problem = data.split(' ')[1]
                 continueFlag = draw.sendDraw(sock,userList,screen,problem)
+                
             elif role == "gues":
-                draw.receiveDraw(sock,screen)
-                continueFlag = True
+                continueFlag = draw.receiveDraw(sock,screen)
+                
             elif role == "list":
                 userList = data
                 print("List: ",userList)
                 continueFlag = False
+                
             else:   #useless position
                 continueFlag = False
 

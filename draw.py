@@ -1,5 +1,5 @@
 import pygame, sys,threading
-import json
+import json,time
 
 def drawUserList(nowUserList,screen):
     listSTR = nowUserList[7:]
@@ -21,7 +21,10 @@ def drawerReceive(sock,screen):
         data = sock.recv(1024).decode('utf-8')
         if data[0:6] == "[list]":
             drawUserList(data,screen)
-
+        elif data == "restart":
+            print("restart")
+            break
+    print("drawerRECEIVE CLOSED")
 def sendDraw(sock,nowUserList,screen,problem):
     
     # Set white background
@@ -49,11 +52,11 @@ def sendDraw(sock,nowUserList,screen,problem):
 
     pygame.display.update()
     tempPos = ()
-    detectFlag = True
-    while detectFlag:
+    #detectFlag = True
+    print("可以開始畫圖")
+    while True:
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
-                detectFlag = False
                 return True
         
         # 如果按下滑鼠
@@ -65,7 +68,9 @@ def sendDraw(sock,nowUserList,screen,problem):
                     # 100,400,50,20
                     if pos[0]>=100 and pos[0]<=150 and pos[1]>=400 and pos[1]<=420:
                         sock.send("[restart]".encode('utf-8'))
-                        detectFlag = False
+                        #if data == 'restart':
+                        time.sleep(1) #drawerReceive
+                        #detectFlag = False
                         return False
                         #print("restart")
                     mouseFlag = True
@@ -95,8 +100,11 @@ def sendDraw(sock,nowUserList,screen,problem):
         
 
         clock.tick(30)
-startFlag = True
+    print("停止畫圖")
 
+
+
+startFlag = True
 def guessInput(screen,sock):
     global startFlag
     guessStr = ""
@@ -121,9 +129,12 @@ def guessInput(screen,sock):
                 pygame.display.update()
 
 def receiveDraw(sock,screen):
+    global startFlag
+    print("進入receiveDraw")
+    print(startFlag)
     white= (255, 255, 255)
     black= (0, 0, 0)
-    global startFlag
+    
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen,(171, 254, 250),[100,450,500,550],0)
     pygame.display.update()
@@ -136,13 +147,15 @@ def receiveDraw(sock,screen):
         data = sock.recv(1024).decode('utf-8')
         if data == 'exitok':
             startFlag = False
-            pygame.quit()
-            sys.exit()
+            return True
         elif data[0:6] == "[list]":
             drawUserList(data,screen)
-
-
             continue
+        elif data == 'restart':
+            startFlag = False
+            time.sleep(0.5)
+            startFlag = True
+            return False
         #print(data)
         li = data.split('+')   # 送來的座標可能一次有多個，規範以+隔開
         for i in li:
@@ -159,5 +172,5 @@ def receiveDraw(sock,screen):
                         # pygame.draw.circle(screen, black, pos, 5, 0)
                         pygame.draw.circle(screen,black,pos,5,0)
                         pygame.display.update()
-    sock.close()
-    
+    startFlag = True
+    print("退出receiveDraw")
