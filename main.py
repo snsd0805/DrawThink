@@ -85,7 +85,7 @@ class Server:
             sock.send("FAIL".encode('utf-8'))
         
 class Room:
-    startFlag = False
+    startFlag = True
     sockList = [] # Client's sock list
 
     def __init__(self,ip,portNum):
@@ -100,7 +100,7 @@ class Room:
         print("\t{}:{}".format(self.ip,self.portNum))
         listensock.listen(5)
         emptyFlag = True
-        while True:
+        while self.startFlag:
             sock,sockname = listensock.accept()
             print("[ {} ]{} has connected.".format(self.portNum,sockname))
 
@@ -150,7 +150,7 @@ class Room:
                 if data[0]=='(': # Form MAIN CLIENT,it is position data
                     for clientSock in self.sockList:    # 遍歷socket list
                         if clientSock != sock:          # 不是自己的才傳送資料.Needn't send position to MAIN
-                            clientSock.send(origin) 
+                            clientSock.send(origin)
                 elif data=='[restart]':  # [restart]
                     print('game restart')
                     time.sleep(1)
@@ -171,7 +171,9 @@ class Room:
                             allPeerName.append(i.getpeername())
                         for sock in self.sockList:
                             sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
-
+                        # Close Process
+                        if len(self.sockList):
+                            self.startFlag = False
                     else:
                         sock.send('n'.encode('utf-8'))
 
