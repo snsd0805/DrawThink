@@ -92,6 +92,7 @@ class Room:
         self.ip = ip
         self.portNum = portNum
         self.problem = self.getProblem()
+        print(self.problem)
     def start(self):
         # Build a room's socket to start game
         listensock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -103,11 +104,15 @@ class Room:
             print("[ {} ]{} has connected.".format(self.portNum,sockname))
 
             self.sockList.append(sock)      # 把sock放入list
-            
+            allPeerName = []
+            for i in self.sockList:
+                allPeerName.append(i.getpeername())
+            for sock in self.sockList:
+                sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
             receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
             # 負責與client通信，傳輸遊戲所必須的指令
             receiveDataThread.start()
-
+            
     def connect(self):
         time.sleep(0.5)
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -130,6 +135,8 @@ class Room:
                     for clientSock in self.sockList:    # 遍歷socket list
                         if clientSock != sock:          # 不是自己的才傳送資料.Needn't send position to MAIN
                             clientSock.send(origin) 
+
+
                 else:   # it is from other client. He/she want to send answer to check the answer
                     if data == self.problem:
                         sock.send('y'.encode('utf-8'))
@@ -167,7 +174,7 @@ class Client:
             # receiveDataThread.start()
             # sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
             # sendDataThread.start()
-            draw.sendDraw(sock,)    # 開始繪圖
+            draw.sendDraw(sock)    # 開始繪圖
 
         elif receiveMsg=="OK.CLIENT":
             roomNum = input("Room Number> ")

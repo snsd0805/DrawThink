@@ -1,5 +1,5 @@
 import pygame, sys,threading
-
+import json
 
 def sendDraw(sock):
     white= (255, 255, 255)
@@ -7,7 +7,7 @@ def sendDraw(sock):
 
     pygame.init()
     pygame.display.set_caption('Mouse Example')
-    size= [640, 480]
+    size= [1080, 480]
     screen= pygame.display.set_mode(size)
     clock= pygame.time.Clock()
 
@@ -19,6 +19,7 @@ def sendDraw(sock):
     mouseFlag = False
     screen.fill((255, 255, 255))
     pygame.display.update()
+    
     while True:
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
@@ -89,7 +90,7 @@ def receiveDraw(sock):
 
     pygame.init()
     pygame.display.set_caption('Mouse Example')
-    size= [640, 480]
+    size= [1080, 480]
 
     screen= pygame.display.set_mode(size)
 
@@ -109,7 +110,22 @@ def receiveDraw(sock):
             startFlag = False
             pygame.quit()
             sys.exit()
-        print(data)
+        elif data[0:6] == "[list]":
+            listSTR = data[7:]
+            
+            listJSON = json.loads(listSTR)
+            #[['127.0.0.1', 52362], ['127.0.0.1', 52370]]
+            y = 100
+            cross = 20
+            for sockName in listJSON:
+                pygame.draw.rect(screen,(171, 254, 250),[900,y,200,30],0)    # 輸入匡的矩形
+                pgStringVar = pygame.font.Font(None,25).render(str(sockName),False,(0,0,0))# 文字物件
+                screen.blit(pgStringVar,(910,y+10))# draw font
+                pygame.display.update()
+                y = y+30+cross
+
+            continue
+        #print(data)
         li = data.split('+')   # 送來的座標可能一次有多個，規範以+隔開
         for i in li:
             if i!="":
