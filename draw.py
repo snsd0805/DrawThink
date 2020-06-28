@@ -31,6 +31,7 @@ def sendDraw(sock,nowUserList,screen,problem):
     pgStringVar = pygame.font.Font(None,30).render("Problem: {}".format(problem),False,(0,0,0))# 文字物件
     screen.blit(pgStringVar,(30,450))
     
+    pygame.draw.rect(screen,(171, 254, 250),[100,400,50,20],0)
     
     white= (255, 255, 255)
     black= (0, 0, 0)
@@ -53,12 +54,20 @@ def sendDraw(sock,nowUserList,screen,problem):
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
                 detectFlag = False
+                return True
         
         # 如果按下滑鼠
-        # get_pressed() 告訴您按下哪個滑鼠按鈕
+        # get_pressed() 告訴按下哪個滑鼠按鈕
             if event.type == pygame.MOUSEBUTTONDOWN:
                 print ('mouse pressed',pygame.mouse.get_pressed())
                 if pygame.mouse.get_pressed()[0]:
+                    pos = pygame.mouse.get_pos()
+                    # 100,400,50,20
+                    if pos[0]>=100 and pos[0]<=150 and pos[1]>=400 and pos[1]<=420:
+                        sock.send("[restart]".encode('utf-8'))
+                        detectFlag = False
+                        return False
+                        #print("restart")
                     mouseFlag = True
         # 如果釋放滑鼠
             elif event.type == pygame.MOUSEBUTTONUP:
