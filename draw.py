@@ -19,7 +19,7 @@ def sendDraw(sock):
     mouseFlag = False
     screen.fill((255, 255, 255))
     pygame.display.update()
-    
+    tempPos = ()
     while True:
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
@@ -39,12 +39,13 @@ def sendDraw(sock):
                     mouseFlag = False
         # 如果滑鼠在運動中
             if event.type == pygame.MOUSEMOTION:
-                print ('mouse is moving', pygame.mouse.get_pos())
+                #print ('mouse is moving', pygame.mouse.get_pos())
                 if mouseFlag:
-                    dotPos.append(pygame.mouse.get_pos())
-                    sock.send("{}+".format(pygame.mouse.get_pos()).encode('utf-8'))
-
-                    pygame.draw.circle(screen,black,pygame.mouse.get_pos(),5,0)
+                    #dotPos.append(pygame.mouse.get_pos())
+                    if(pygame.mouse.get_pos()!=tempPos):
+                        sock.send("{}+".format(pygame.mouse.get_pos()).encode('utf-8'))
+                        pygame.draw.circle(screen,black,pygame.mouse.get_pos(),5,0)
+                        tempPos = pygame.mouse.get_pos()
             
         
         # feature
