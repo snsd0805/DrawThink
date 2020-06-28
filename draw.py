@@ -22,9 +22,16 @@ def drawerReceive(sock,screen):
         if data[0:6] == "[list]":
             drawUserList(data,screen)
 
-def sendDraw(sock,nowUserList,screen):
+def sendDraw(sock,nowUserList,screen,problem):
+    
+    # Set white background
     screen.fill((255, 255, 255))
-
+    
+    # Set problem font
+    pgStringVar = pygame.font.Font(None,30).render("Problem: {}".format(problem),False,(0,0,0))# 文字物件
+    screen.blit(pgStringVar,(30,450))
+    
+    
     white= (255, 255, 255)
     black= (0, 0, 0)
     clock= pygame.time.Clock()

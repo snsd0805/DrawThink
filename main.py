@@ -235,9 +235,10 @@ class Client:
         while not continueFlag:
             data = sock.recv(1024).decode('utf-8')
             role = data[1:5]
+            problem = data.split(' ')[1]
             #print("Role: ",role)
             if role == "prob":
-                draw.sendDraw(sock,userList,screen)
+                draw.sendDraw(sock,userList,screen,problem)
                 continueFlag = True
             elif role == "gues":
                 draw.receiveDraw(sock,screen)
