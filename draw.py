@@ -22,22 +22,15 @@ def drawerReceive(sock,screen):
         if data[0:6] == "[list]":
             drawUserList(data,screen)
 
-def sendDraw(sock,nowUserList):
-    white= (255, 255, 255)
-    black= (0, 0, 0)
-
-    pygame.init()
-    pygame.display.set_caption('Mouse Example')
-    size= [1080, 480]
-    screen= pygame.display.set_mode(size)
-    clock= pygame.time.Clock()
+def sendDraw(sock,nowUserList,screen):
     screen.fill((255, 255, 255))
 
-
-
+    white= (255, 255, 255)
+    black= (0, 0, 0)
+    clock= pygame.time.Clock()
     # 開始話user list
     drawUserList(nowUserList,screen)
-    drawerRecvThreading = threading.Thread(target=drawerReceive,args=(sock,screen))
+    drawerRecvThreading = threading.Thread(target=drawerReceive,args=(sock,screen),daemon=True)
     drawerRecvThreading.start()
     # 使系統滑鼠圖標不可見
     #pygame.mouse.set_visible(False)
@@ -48,11 +41,11 @@ def sendDraw(sock,nowUserList):
 
     pygame.display.update()
     tempPos = ()
-    while True:
+    detectFlag = True
+    while detectFlag:
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                detectFlag = False
         
         # 如果按下滑鼠
         # get_pressed() 告訴您按下哪個滑鼠按鈕
@@ -73,6 +66,7 @@ def sendDraw(sock,nowUserList):
                     if(pygame.mouse.get_pos()!=tempPos):
                         sock.send("{}+".format(pygame.mouse.get_pos()).encode('utf-8'))
                         pygame.draw.circle(screen,black,pygame.mouse.get_pos(),5,0)
+                        pygame.display.update()
                         tempPos = pygame.mouse.get_pos()
             
         
@@ -83,10 +77,8 @@ def sendDraw(sock,nowUserList):
         #pos= (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
         #pygame.draw.circle(screen, black, pos, 5, 0)
         
-        pygame.display.update()
 
         clock.tick(30)
-
 startFlag = True
 
 def guessInput(screen,sock):
@@ -112,25 +104,16 @@ def guessInput(screen,sock):
                 screen.blit(pgStringVar,(120,455))# draw font
                 pygame.display.update()
 
-def receiveDraw(sock):
-    global startFlag
+def receiveDraw(sock,screen):
     white= (255, 255, 255)
     black= (0, 0, 0)
-
-    pygame.init()
-    pygame.display.set_caption('Mouse Example')
-    size= [1080, 480]
-
-    screen= pygame.display.set_mode(size)
-
-    clock= pygame.time.Clock()
+    global startFlag
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen,(171, 254, 250),[100,450,500,550],0)
     pygame.display.update()
     print("draw start")
 
-    guessThreading = threading.Thread(target=guessInput,args=(screen,sock)) # guest input
-    guessThreading.setDaemon(False)
+    guessThreading = threading.Thread(target=guessInput,args=(screen,sock),daemon=True) # guest input
     guessThreading.start()
     
     while startFlag:

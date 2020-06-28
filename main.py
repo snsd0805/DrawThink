@@ -1,5 +1,5 @@
 import socket,threading,sys,random,multiprocessing,time
-import draw
+import draw,pygame
 import requests,json # Get problem
 MAX = 1024
 
@@ -19,7 +19,7 @@ class Server:
         while True:
             sock,sockname = listensock.accept()
             print("{} has connected.".format(sockname))
-            setTypeThread = threading.Thread(target = self.selectType,args=(sock,)) # Create a thread for communicating with client.
+            setTypeThread = threading.Thread(target = self.selectType,args=(sock,),daemon=True) # Create a thread for communicating with client.
             setTypeThread.start()
 
     def selectType(self,sock):
@@ -112,7 +112,7 @@ class Room:
                 allPeerName.append(i.getpeername())
             for sock in self.sockList:
                 sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
-            receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
+            receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,),daemon=True)
             # 負責與client通信，傳輸遊戲所必須的指令
             receiveDataThread.start()
 
@@ -177,6 +177,7 @@ class Client:
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         sock.connect((self.ip,self.port))
         self.setType(sock)
+        sock.close()
 
     def setType(self,sock):
         print("Type in 'MAIN' to set a new room\nType in 'CLIENT' to join a room")
@@ -189,6 +190,7 @@ class Client:
             # get ROOMNUM and PORTNUM
             connectData = receiveMsg.split(' ')
             room = Room(self.ip,int(connectData[1]))
+            sock.close()
             sock = room.connect()       # sock可覆蓋了
 
             # receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
@@ -202,6 +204,7 @@ class Client:
             receiveMsg = sock.recv(MAX).decode('utf-8')
             # Get port number
             room = Room(self.ip,int(receiveMsg))
+            sock.close()
             sock = room.connect()       # sock可覆蓋了
             
             # receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
@@ -215,6 +218,18 @@ class Client:
 
         userList = sock.recv(1024).decode('utf-8')
         print("List: ",userList)
+                
+        ## SET PYGAME
+        pygame.init()
+        pygame.display.set_caption('Mouse Example')
+        size= [1080, 480]
+        screen= pygame.display.set_mode(size)
+        screen.fill((255, 255, 255))
+        pgStringVar = pygame.font.Font(None,25).render("Please wait...",False,(0,0,0))# 文字物件
+        screen.blit(pgStringVar,(500,240))# draw font
+        pygame.display.update()
+        time.sleep(2)
+        
         
         continueFlag = False
         while not continueFlag:
@@ -222,9 +237,10 @@ class Client:
             role = data[1:5]
             #print("Role: ",role)
             if role == "prob":
-                draw.sendDraw(sock,userList)
+                draw.sendDraw(sock,userList,screen)
+                continueFlag = True
             elif role == "gues":
-                draw.receiveDraw(sock)
+                draw.receiveDraw(sock,screen)
                 continueFlag = True
             elif role == "list":
                 userList = data
@@ -232,6 +248,7 @@ class Client:
                 continueFlag = False
             else:   #useless position
                 continueFlag = False
+        pygame.quit()
     # def receiveData(self,sock):
     #     while True:
     #         data = sock.recv(MAX).decode('utf-8')
