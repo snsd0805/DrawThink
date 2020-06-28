@@ -1,7 +1,28 @@
 import pygame, sys,threading
 import json
 
-def sendDraw(sock):
+def drawUserList(nowUserList,screen):
+    listSTR = nowUserList[7:]
+            
+    listJSON = json.loads(listSTR)
+    #[['127.0.0.1', 52362], ['127.0.0.1', 52370]]
+    y = 100
+    cross = 20
+    pygame.draw.rect(screen,(255,255,255),[900,100,200,380])
+    for sockName in listJSON:
+        pygame.draw.rect(screen,(171, 254, 250),[900,y,200,30],0)    # 輸入匡的矩形
+        pgStringVar = pygame.font.Font(None,25).render(str(sockName),False,(0,0,0))# 文字物件
+        screen.blit(pgStringVar,(910,y+10))# draw font
+        pygame.display.update()
+        y = y+30+cross
+
+def drawerReceive(sock,screen):
+    while True:
+        data = sock.recv(1024).decode('utf-8')
+        if data[0:6] == "[list]":
+            drawUserList(data,screen)
+
+def sendDraw(sock,nowUserList):
     white= (255, 255, 255)
     black= (0, 0, 0)
 
@@ -10,14 +31,21 @@ def sendDraw(sock):
     size= [1080, 480]
     screen= pygame.display.set_mode(size)
     clock= pygame.time.Clock()
+    screen.fill((255, 255, 255))
 
+
+
+    # 開始話user list
+    drawUserList(nowUserList,screen)
+    drawerRecvThreading = threading.Thread(target=drawerReceive,args=(sock,screen))
+    drawerRecvThreading.start()
     # 使系統滑鼠圖標不可見
     #pygame.mouse.set_visible(False)
     
     dotPos = []
 
     mouseFlag = False
-    screen.fill((255, 255, 255))
+
     pygame.display.update()
     tempPos = ()
     while True:
@@ -112,18 +140,8 @@ def receiveDraw(sock):
             pygame.quit()
             sys.exit()
         elif data[0:6] == "[list]":
-            listSTR = data[7:]
-            
-            listJSON = json.loads(listSTR)
-            #[['127.0.0.1', 52362], ['127.0.0.1', 52370]]
-            y = 100
-            cross = 20
-            for sockName in listJSON:
-                pygame.draw.rect(screen,(171, 254, 250),[900,y,200,30],0)    # 輸入匡的矩形
-                pgStringVar = pygame.font.Font(None,25).render(str(sockName),False,(0,0,0))# 文字物件
-                screen.blit(pgStringVar,(910,y+10))# draw font
-                pygame.display.update()
-                y = y+30+cross
+            drawUserList(data,screen)
+
 
             continue
         #print(data)

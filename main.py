@@ -99,12 +99,15 @@ class Room:
         listensock.bind((self.ip,self.portNum))
         print("\t{}:{}".format(self.ip,self.portNum))
         listensock.listen(5)
+        emptyFlag = True
         while True:
             sock,sockname = listensock.accept()
             print("[ {} ]{} has connected.".format(self.portNum,sockname))
 
-            self.sockList.append(sock)      # 把sock放入list
             allPeerName = []
+            self.sockList.append(sock)      # 把sock放入list
+
+            # Send socket list to client to build a user list and put it beside picture.
             for i in self.sockList:
                 allPeerName.append(i.getpeername())
             for sock in self.sockList:
@@ -112,7 +115,18 @@ class Room:
             receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,))
             # 負責與client通信，傳輸遊戲所必須的指令
             receiveDataThread.start()
-            
+
+            if emptyFlag:
+                self.game()
+                emptyFlag = False
+
+    def game(self):
+        mainSocket = random.choice(self.sockList)
+        for sock in self.sockList:
+            if sock == mainSocket:
+                sock.send('[prob] {}'.format(self.problem).encode('utf-8'))
+            else:
+                sock.send('[gues]'.encode('utf-8'))
     def connect(self):
         time.sleep(0.5)
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -143,6 +157,13 @@ class Room:
                     elif data == 'exit':
                         sock.send('exitok'.encode('utf-8'))
                         self.sockList.remove(sock)
+                        allPeerName = []
+                        # Send socket list to client to build a user list and put it beside picture.
+                        for i in self.sockList:
+                            allPeerName.append(i.getpeername())
+                        for sock in self.sockList:
+                            sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
+
                     else:
                         sock.send('n'.encode('utf-8'))
 
@@ -174,7 +195,6 @@ class Client:
             # receiveDataThread.start()
             # sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
             # sendDataThread.start()
-            draw.sendDraw(sock)    # 開始繪圖
 
         elif receiveMsg=="OK.CLIENT":
             roomNum = input("Room Number> ")
@@ -188,19 +208,39 @@ class Client:
             # receiveDataThread.start()
             # sendDataThread = threading.Thread(target=self.sendData,args=(sock,))
             # sendDataThread.start()
-            draw.receiveDraw(sock) # Start to receive mouse position to draw picture what MAIN client draw. 
+        
         else:
             print("ERROR TYPE")
+            exit
 
-    def receiveData(self,sock):
-        while True:
-            data = sock.recv(MAX).decode('utf-8')
-            if data:
-                print(data)
-    def sendData(self,sock):
-        while True:
-            data = input("> ")
-            sock.send(data.encode('utf-8'))
+        userList = sock.recv(1024).decode('utf-8')
+        print("List: ",userList)
+        
+        continueFlag = False
+        while not continueFlag:
+            data = sock.recv(1024).decode('utf-8')
+            role = data[1:5]
+            #print("Role: ",role)
+            if role == "prob":
+                draw.sendDraw(sock,userList)
+            elif role == "gues":
+                draw.receiveDraw(sock)
+                continueFlag = True
+            elif role == "list":
+                userList = data
+                print("List: ",userList)
+                continueFlag = False
+            else:   #useless position
+                continueFlag = False
+    # def receiveData(self,sock):
+    #     while True:
+    #         data = sock.recv(MAX).decode('utf-8')
+    #         if data:
+    #             print(data)
+    # def sendData(self,sock):
+    #     while True:
+    #         data = input("> ")
+    #         sock.send(data.encode('utf-8'))
 def main():
     ip = sys.argv[2]
     port = sys.argv[3]
