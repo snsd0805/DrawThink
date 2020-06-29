@@ -5,13 +5,13 @@ def drawUserList(nowUserList,screen):
     listSTR = nowUserList[7:]
             
     listJSON = json.loads(listSTR)
-
+    print(listJSON)
     # [['127.0.0.1', 52362], ['127.0.0.1', 52370]]
     # [{'name': ['127.0.0.1', 55888], 'score': 0}, {'name': ['127.0.0.1', 55900], 'score': 0}]
     #print(listJSON)
     y = 100
     cross = 20
-    pygame.draw.rect(screen,(255,255,255),[900,100,200,380])
+    pygame.draw.rect(screen,(255,255,255),[850,100,300,380])
     for sockName in listJSON:
         pygame.draw.rect(screen,(171, 254, 250),[850,y,200,30],0)    # 輸入匡的矩形
         pgStringVar = pygame.font.Font(None,25).render(str(sockName['name']),False,(0,0,0))# 文字物件
