@@ -8,7 +8,7 @@ def drawUserList(nowUserList,screen):
 
     # [['127.0.0.1', 52362], ['127.0.0.1', 52370]]
     # [{'name': ['127.0.0.1', 55888], 'score': 0}, {'name': ['127.0.0.1', 55900], 'score': 0}]
-    print(listJSON)
+    #print(listJSON)
     y = 100
     cross = 20
     pygame.draw.rect(screen,(255,255,255),[900,100,200,380])
@@ -30,11 +30,11 @@ def drawerReceive(sock,screen):
         if data[0:6] == "[list]":
             drawUserList(data,screen)
         elif data == "restart":
-            print("restart")
+            #print("restart")
             break
         elif data == 'exitok':
             break
-    print("drawerRECEIVE CLOSED")
+    #print("drawerRECEIVE CLOSED")
 
 def sendDraw(sock,nowUserList,screen,problem):
     
@@ -70,7 +70,7 @@ def sendDraw(sock,nowUserList,screen,problem):
     pygame.display.update()
     tempPos = ()
     #detectFlag = True
-    print("可以開始畫圖")
+    #print("可以開始畫圖")
     while True:
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
@@ -79,7 +79,7 @@ def sendDraw(sock,nowUserList,screen,problem):
         # 如果按下滑鼠
         # get_pressed() 告訴按下哪個滑鼠按鈕
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print ('mouse pressed',pygame.mouse.get_pressed())
+                #print ('mouse pressed',pygame.mouse.get_pressed())
                 if pygame.mouse.get_pressed()[0]:
                     pos = pygame.mouse.get_pos()
                     # 100,400,100,50
@@ -97,7 +97,7 @@ def sendDraw(sock,nowUserList,screen,problem):
                     mouseFlag = True
         # 如果釋放滑鼠
             elif event.type == pygame.MOUSEBUTTONUP:
-                print ('mouse released', pygame.mouse.get_pressed())
+                #print ('mouse released', pygame.mouse.get_pressed())
                 if pygame.mouse.get_pressed()[0] == 0:
                     mouseFlag = False
         # 如果滑鼠在運動中
@@ -121,7 +121,7 @@ def sendDraw(sock,nowUserList,screen,problem):
         
 
         clock.tick(30)
-    print("停止畫圖")
+    #print("停止畫圖")
 
 
 
@@ -145,14 +145,14 @@ def guessInput(screen,sock):
 
                 pygame.draw.rect(screen,(171, 254, 250),[100,450,500,550],0)    # 輸入匡的矩形
                 pgStringVar = pygame.font.Font(None,30).render(guessStr,False,(0,0,0))# 文字物件
-                print(guessStr) # for test
+                #print(guessStr) # for test
                 screen.blit(pgStringVar,(120,455))# draw font
                 pygame.display.update()
 
 def receiveDraw(sock,screen,userList):
     global startFlag
-    print("進入receiveDraw")
-    print(startFlag)
+    #print("進入receiveDraw")
+    #print(startFlag)
     white= (255, 255, 255)
     black= (0, 0, 0)
     
@@ -160,7 +160,7 @@ def receiveDraw(sock,screen,userList):
     drawUserList(userList,screen)
     pygame.draw.rect(screen,(171, 254, 250),[100,450,500,550],0)
     pygame.display.update()
-    print("draw start")
+    #print("draw start")
 
     guessThreading = threading.Thread(target=guessInput,args=(screen,sock),daemon=True) # guest input
     guessThreading.start()
@@ -196,7 +196,7 @@ def receiveDraw(sock,screen,userList):
                     i = i.rstrip(')')
                     i = i.replace(',','')
                     i = i.split(' ')
-                    print(i)    #for test
+                    #print(i)    #for test
                     if len(i)==2 :       # 防止傳送過程疏漏
                         if i[0]!='' and i[1]!='':   # 防止傳送過程疏漏
                             pos = (int(i[0]),int(i[1]))
@@ -204,4 +204,4 @@ def receiveDraw(sock,screen,userList):
                             pygame.draw.circle(screen,black,pos,5,0)
                             pygame.display.update()
     startFlag = True
-    print("退出receiveDraw")
+    #print("退出receiveDraw")

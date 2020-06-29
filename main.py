@@ -25,7 +25,7 @@ class Server:
     def selectType(self,sock):
         data = sock.recv(MAX).decode('utf-8')
 
-        print(data)
+        #print(data)
         if data == "MAIN":
             sock.send("OK.SERVER".encode('utf-8'))
             self.main(sock) # Set main client mode
@@ -92,7 +92,7 @@ class Room:
         self.ip = ip
         self.portNum = portNum
         self.problem = self.getProblem()
-        print(self.problem)
+        #print(self.problem)
     def start(self):
         # Build a room's socket to start game
         self.allPeerName = []
@@ -125,7 +125,7 @@ class Room:
         mainSocket = random.choice(self.sockList)
         self.problem = self.getProblem()
         time.sleep(4)
-        print("GAME SEND PROBLEM")
+        #print("GAME SEND PROBLEM")
         for clientSock in self.sockList:
             if clientSock == mainSocket:
                 clientSock.send('[prob] {}'.format(self.problem).encode('utf-8'))
@@ -150,13 +150,13 @@ class Room:
             origin = sock.recv(MAX)
             data = origin.decode('utf-8')
             if data:
-                print(data)
+                #print(data)
                 if data[0]=='(': # Form MAIN CLIENT,it is position data
                     for clientSock in self.sockList:    # 遍歷socket list
                         if clientSock != sock:          # 不是自己的才傳送資料.Needn't send position to MAIN
                             clientSock.send(origin)
                 elif data=='[restart]':  # [restart]
-                    print('game restart')
+                    #print('game restart')
                     time.sleep(1)
                     for clientSock in self.sockList:
                         clientSock.send('restart'.encode('utf-8'))
@@ -234,7 +234,7 @@ class Client:
             exit
 
         userList = sock.recv(1024).decode('utf-8')
-        print("List: ",userList)
+        #print("List: ",userList)
                 
         ## SET PYGAME
         pygame.init()
@@ -250,11 +250,11 @@ class Client:
             screen.blit(pgStringVar,(500,240))# draw font
             pygame.display.update()
 
-            print("START RECEIVE.")
+            #print("START RECEIVE.")
             data = sock.recv(1024).decode('utf-8')
             role = data[1:5]
            
-            print("Role: ",role)
+            #print("Role: ",role)
             if role == "prob":
                 problem = data.split(' ')[1]
                 continueFlag = draw.sendDraw(sock,userList,screen,problem)
@@ -264,7 +264,7 @@ class Client:
                 
             elif role == "list":
                 userList = data
-                print("List: ",userList)
+                #print("List: ",userList)
                 continueFlag = False
                 
             else:   #useless position
