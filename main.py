@@ -177,6 +177,7 @@ class Room:
                                 self.allPeerName.remove(peer)
                         if len(self.sockList):
                             self.startFlag = False
+                        break
                     else:
                         sock.send('n'.encode('utf-8'))
                     for clientSock in self.sockList:
