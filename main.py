@@ -130,6 +130,8 @@ class Room:
                 clientSock.send('[prob] {}'.format(self.problem).encode('utf-8'))
             else:
                 clientSock.send('[gues]'.encode('utf-8'))
+        for sock in self.sockList:
+            sock.send("[list] {}".format(json.dumps(self.allPeerName)).encode('utf-8'))
     def connect(self):
         time.sleep(0.5)
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
