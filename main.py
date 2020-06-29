@@ -176,8 +176,10 @@ class Room:
                         for peer in self.allPeerName:
                             if sock.getpeername() == peer['name']:
                                 self.allPeerName.remove(peer)
-                        if len(self.sockList):
+                        if len(self.sockList) == 0 :
                             self.startFlag = False
+                        for clientSock in self.sockList:
+                            clientSock.send("[list] {}".format(json.dumps(self.allPeerName)).encode('utf-8'))
                         break
                     else:
                         sock.send('n'.encode('utf-8'))
