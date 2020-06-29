@@ -136,7 +136,7 @@ def guessInput(screen,sock):
                 screen.blit(pgStringVar,(120,455))# draw font
                 pygame.display.update()
 
-def receiveDraw(sock,screen):
+def receiveDraw(sock,screen,userList):
     global startFlag
     print("進入receiveDraw")
     print(startFlag)
@@ -144,6 +144,7 @@ def receiveDraw(sock,screen):
     black= (0, 0, 0)
     
     screen.fill((255, 255, 255))
+    drawUserList(userList,screen)
     pygame.draw.rect(screen,(171, 254, 250),[100,450,500,550],0)
     pygame.display.update()
     print("draw start")

@@ -253,7 +253,7 @@ class Client:
                 continueFlag = draw.sendDraw(sock,userList,screen,problem)
                 
             elif role == "gues":
-                continueFlag = draw.receiveDraw(sock,screen)
+                continueFlag = draw.receiveDraw(sock,screen,userList)
                 
             elif role == "list":
                 userList = data
