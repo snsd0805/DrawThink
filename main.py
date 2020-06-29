@@ -240,7 +240,7 @@ class Client:
                 
         ## SET PYGAME
         pygame.init()
-        pygame.display.set_caption('Mouse Example')
+        pygame.display.set_caption('Draw Think')
         size= [1080, 480]
         screen= pygame.display.set_mode(size)
         
@@ -248,7 +248,7 @@ class Client:
         continueFlag = False
         while not continueFlag:
             screen.fill((255, 255, 255))
-            pgStringVar = pygame.font.Font(None,25).render("Please wait...",False,(0,0,0))# 文字物件
+            pgStringVar = pygame.font.Font(None,40).render("Please wait...",False,(0,0,0))# 文字物件
             screen.blit(pgStringVar,(500,240))# draw font
             pygame.display.update()
 

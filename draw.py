@@ -5,7 +5,7 @@ def drawUserList(nowUserList,screen):
     listSTR = nowUserList[7:]
             
     listJSON = json.loads(listSTR)
-    print(listJSON)
+    #print(listJSON)
     # [['127.0.0.1', 52362], ['127.0.0.1', 52370]]
     # [{'name': ['127.0.0.1', 55888], 'score': 0}, {'name': ['127.0.0.1', 55900], 'score': 0}]
     #print(listJSON)
@@ -17,7 +17,7 @@ def drawUserList(nowUserList,screen):
         pgStringVar = pygame.font.Font(None,25).render(str(sockName['name']),False,(0,0,0))# 文字物件
         screen.blit(pgStringVar,(870,y+10))# draw font
 
-        pgStringVar = pygame.font.Font(None,25).render(str(sockName['score']),False,(255,0,0))# 文字物件
+        pgStringVar = pygame.font.Font(None,40).render(str(sockName['score']),False,(255,0,0))# 文字物件
         screen.blit(pgStringVar,(860,y+10))# draw font
 
         pygame.display.update()
