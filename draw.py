@@ -5,20 +5,28 @@ def drawUserList(nowUserList,screen):
     listSTR = nowUserList[7:]
             
     listJSON = json.loads(listSTR)
-    #[['127.0.0.1', 52362], ['127.0.0.1', 52370]]
+
+    # [['127.0.0.1', 52362], ['127.0.0.1', 52370]]
+    # [{'name': ['127.0.0.1', 55888], 'score': 0}, {'name': ['127.0.0.1', 55900], 'score': 0}]
+    print(list)
     y = 100
     cross = 20
     pygame.draw.rect(screen,(255,255,255),[900,100,200,380])
     for sockName in listJSON:
-        pygame.draw.rect(screen,(171, 254, 250),[900,y,200,30],0)    # 輸入匡的矩形
-        pgStringVar = pygame.font.Font(None,25).render(str(sockName),False,(0,0,0))# 文字物件
-        screen.blit(pgStringVar,(910,y+10))# draw font
+        pygame.draw.rect(screen,(171, 254, 250),[850,y,200,30],0)    # 輸入匡的矩形
+        pgStringVar = pygame.font.Font(None,25).render(str(sockName['name']),False,(0,0,0))# 文字物件
+        screen.blit(pgStringVar,(870,y+10))# draw font
+
+        pgStringVar = pygame.font.Font(None,25).render(str(sockName['score']),False,(255,0,0))# 文字物件
+        screen.blit(pgStringVar,(860,y+10))# draw font
+
         pygame.display.update()
         y = y+30+cross
 
 def drawerReceive(sock,screen):
     while True:
         data = sock.recv(1024).decode('utf-8')
+        
         if data[0:6] == "[list]":
             drawUserList(data,screen)
         elif data == "restart":

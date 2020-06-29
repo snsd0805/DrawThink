@@ -109,7 +109,7 @@ class Room:
 
             # Send socket list to client to build a user list and put it beside picture.
             for i in self.sockList:
-                allPeerName.append(i.getpeername())
+                allPeerName.append({'name':i.getpeername(),'score':0})
             for sock in self.sockList:
                 sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
             receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,),daemon=True)
@@ -168,7 +168,7 @@ class Room:
                         allPeerName = []
                         # Send socket list to client to build a user list and put it beside picture.
                         for i in self.sockList:
-                            allPeerName.append(i.getpeername())
+                            allPeerName.append({'name':i.getpeername(),'score':0})
                         for sock in self.sockList:
                             sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
                         # Close Process
