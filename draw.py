@@ -46,8 +46,13 @@ def sendDraw(sock,nowUserList,screen,problem):
     screen.blit(pgStringVar,(30,450))
     
     pygame.draw.rect(screen,(171, 254, 250),[100,400,100,50],0)
+    pgStringVar = pygame.font.Font(None,30).render("Restart",False,(0,0,0))# 文字物件
+    screen.blit(pgStringVar,(120,415))
+
     pygame.draw.rect(screen,(255, 0, 0),[250,400,100,50],0)
-    
+    pgStringVar = pygame.font.Font(None,30).render("Leave",False,(0,0,0))# 文字物件
+    screen.blit(pgStringVar,(270,415))
+
     white= (255, 255, 255)
     black= (0, 0, 0)
     clock= pygame.time.Clock()
