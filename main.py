@@ -124,7 +124,7 @@ class Room:
     def game(self):
         mainSocket = random.choice(self.sockList)
         self.problem = self.getProblem()
-        time.sleep(4)
+        time.sleep(2)
         #print("GAME SEND PROBLEM")
         for clientSock in self.sockList:
             if clientSock == mainSocket:
