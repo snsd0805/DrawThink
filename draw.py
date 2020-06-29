@@ -164,21 +164,30 @@ def receiveDraw(sock,screen):
             time.sleep(0.5)
             startFlag = True
             return False
+        elif data == 'y':
+            pgStringVar = pygame.font.Font(None,80).render("CORRECT!!!",False,(255,0,0))# 文字物件
+            screen.blit(pgStringVar,(540,240))# draw font
+            pygame.display.update()
+        elif data == 'n':
+            pgStringVar = pygame.font.Font(None,80).render("WRONG!!!",False,(255,0,0))# 文字物件
+            screen.blit(pgStringVar,(100,450))# draw font
+            pygame.display.update()
         #print(data)
-        li = data.split('+')   # 送來的座標可能一次有多個，規範以+隔開
-        for i in li:
-            if i!="":
-                # 切割取得座標
-                i = i.lstrip('(')
-                i = i.rstrip(')')
-                i = i.replace(',','')
-                i = i.split(' ')
-                print(i)    #for test
-                if len(i)==2 :       # 防止傳送過程疏漏
-                    if i[0]!='' and i[1]!='':   # 防止傳送過程疏漏
-                        pos = (int(i[0]),int(i[1]))
-                        # pygame.draw.circle(screen, black, pos, 5, 0)
-                        pygame.draw.circle(screen,black,pos,5,0)
-                        pygame.display.update()
+        else:
+            li = data.split('+')   # 送來的座標可能一次有多個，規範以+隔開
+            for i in li:
+                if i!="":
+                    # 切割取得座標
+                    i = i.lstrip('(')
+                    i = i.rstrip(')')
+                    i = i.replace(',','')
+                    i = i.split(' ')
+                    print(i)    #for test
+                    if len(i)==2 :       # 防止傳送過程疏漏
+                        if i[0]!='' and i[1]!='':   # 防止傳送過程疏漏
+                            pos = (int(i[0]),int(i[1]))
+                            # pygame.draw.circle(screen, black, pos, 5, 0)
+                            pygame.draw.circle(screen,black,pos,5,0)
+                            pygame.display.update()
     startFlag = True
     print("退出receiveDraw")
