@@ -8,7 +8,7 @@ def drawUserList(nowUserList,screen):
 
     # [['127.0.0.1', 52362], ['127.0.0.1', 52370]]
     # [{'name': ['127.0.0.1', 55888], 'score': 0}, {'name': ['127.0.0.1', 55900], 'score': 0}]
-    print(list)
+    print(listJSON)
     y = 100
     cross = 20
     pygame.draw.rect(screen,(255,255,255),[900,100,200,380])

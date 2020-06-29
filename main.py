@@ -95,6 +95,7 @@ class Room:
         print(self.problem)
     def start(self):
         # Build a room's socket to start game
+        self.allPeerName = []
         listensock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         listensock.bind((self.ip,self.portNum))
         print("\t{}:{}".format(self.ip,self.portNum))
@@ -104,14 +105,14 @@ class Room:
             sock,sockname = listensock.accept()
             print("[ {} ]{} has connected.".format(self.portNum,sockname))
 
-            allPeerName = []
+            
             self.sockList.append(sock)      # 把sock放入list
 
             # Send socket list to client to build a user list and put it beside picture.
-            for i in self.sockList:
-                allPeerName.append({'name':i.getpeername(),'score':0})
+            
+            self.allPeerName.append({'name':sock.getpeername(),'score':0})
             for sock in self.sockList:
-                sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
+                sock.send("[list] {}".format(json.dumps(self.allPeerName)).encode('utf-8'))
             receiveDataThread = threading.Thread(target=self.receiveData,args=(sock,),daemon=True)
             # 負責與client通信，傳輸遊戲所必須的指令
             receiveDataThread.start()
@@ -162,20 +163,22 @@ class Room:
                 else:   # it is from other client. He/she want to send answer to check the answer
                     if data == self.problem:
                         sock.send('y'.encode('utf-8'))
+                        
+                        for peer in self.allPeerName:
+                            if sock.getpeername() == peer['name']:
+                                peer['score'] = peer['score']+1
                     elif data == 'exit':
                         sock.send('exitok'.encode('utf-8'))
                         self.sockList.remove(sock)
-                        allPeerName = []
-                        # Send socket list to client to build a user list and put it beside picture.
-                        for i in self.sockList:
-                            allPeerName.append({'name':i.getpeername(),'score':0})
-                        for sock in self.sockList:
-                            sock.send("[list] {}".format(json.dumps(allPeerName)).encode('utf-8'))
-                        # Close Process
+                        for peer in self.allPeerName:
+                            if sock.getpeername() == peer['name']:
+                                self.allPeerName.remove(peer)
                         if len(self.sockList):
                             self.startFlag = False
                     else:
                         sock.send('n'.encode('utf-8'))
+                    for clientSock in self.sockList:
+                        clientSock.send("[list] {}".format(json.dumps(self.allPeerName)).encode('utf-8'))
 
 class Client:
     def __init__(self,ip,port):
